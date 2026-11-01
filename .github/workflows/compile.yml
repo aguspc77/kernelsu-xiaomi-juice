@@ -34,7 +34,13 @@ jobs:
 
         # Apply kernel patch
         cp /tmp/susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch .
-        patch -p1 < 50_add_susfs_in_kernel-4.19.patch || echo "[!] Patch had conflicts, continuing..."
+        patch -p1 --fuzz=3 < 50_add_susfs_in_kernel-4.19.patch || echo "[!] Patch had conflicts, continuing..."
+
+        # Revert task_mmu.c kalau masih ada .rej
+        if [ -f fs/proc/task_mmu.c.rej ]; then
+          git checkout -- fs/proc/task_mmu.c
+          echo "[!] task_mmu.c reverted - /proc/maps hiding disabled"
+        fi    
 
         # Enable SUSFS config
         echo "CONFIG_KSU_SUSFS=y" >> arch/arm64/configs/vendor/bengal-perf_defconfig
