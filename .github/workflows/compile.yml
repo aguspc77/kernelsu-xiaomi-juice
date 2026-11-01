@@ -50,6 +50,10 @@ jobs:
         # access_ok 2-arg -> 3-arg
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|access_ok(\([^,]*\), \([^)]*\))|access_ok(\1, \2, VERIFY_READ)|g' 2>/dev/null || true
 
+        # prio_sys_enter -> sys_enter (4.19)
+        find "$KSU_PATH" -name "*.c" | xargs sed -i 's|register_trace_prio_sys_enter|register_trace_sys_enter|g' 2>/dev/null || true
+        find "$KSU_PATH" -name "*.c" | xargs sed -i 's|unregister_trace_prio_sys_enter|unregister_trace_sys_enter|g' 2>/dev/null || true
+
         echo "[+] Done."
     - name: Android kernel build
       uses: lemniskett/android-kernel-actions@master
