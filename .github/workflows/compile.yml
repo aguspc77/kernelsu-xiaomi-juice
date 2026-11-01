@@ -51,11 +51,10 @@ jobs:
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|copy_to_kernel_nofault|copy_to_kernel|g' 2>/dev/null || true
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|copy_from_kernel_nofault|copy_from_kernel|g' 2>/dev/null || true
 
-        # Tambahin include asm/uaccess.h di patch_memory.c
+        # Forward declaration copy_to/from_kernel di patch_memory.c
         FILE="$KSU_PATH/hook/arm64/patch_memory.c"
-        echo '#include <asm/uaccess.h>' > /tmp/pm_new.c
-        cat "$FILE" >> /tmp/pm_new.c
-        cp /tmp/pm_new.c "$FILE"
+        echo 'extern long copy_to_kernel(void *to, const void *from, size_t n);
+extern long copy_from_kernel(void *to, const void *from, size_t n);' | cat - "$FILE" > /tmp/pm_tmp && cp /tmp/pm_tmp "$FILE"
 
         # access_ok 2-arg -> 3-arg
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|access_ok(\([^,]*\), \([^)]*\))|access_ok(\1, \2, VERIFY_READ)|g' 2>/dev/null || true
