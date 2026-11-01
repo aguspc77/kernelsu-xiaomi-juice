@@ -36,11 +36,13 @@ jobs:
         cp /tmp/susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch .
         patch -p1 --fuzz=3 < 50_add_susfs_in_kernel-4.19.patch || echo "[!] Patch had conflicts, continuing..."
 
-        # Revert task_mmu.c kalau masih ada .rej
-        if [ -f fs/proc/task_mmu.c.rej ]; then
-          git checkout -- fs/proc/task_mmu.c
-          echo "[!] task_mmu.c reverted - /proc/maps hiding disabled"
-        fi    
+        # Revert SEMUA file yang conflict
+        for f in $(find . -name "*.rej" 2>/dev/null); do
+          target="${f%.rej}"
+          git checkout -- "$target" 2>/dev/null || true
+          echo "[!] Reverted: $target"
+        done
+        find . -name "*.rej" -delete 2>/dev/null
 
         # Enable SUSFS config
         echo "CONFIG_KSU_SUSFS=y" >> arch/arm64/configs/vendor/bengal-perf_defconfig
