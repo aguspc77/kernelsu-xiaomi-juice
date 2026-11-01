@@ -35,6 +35,12 @@ jobs:
         echo "[+] Integrating SukiSU-Ultra (susfs-dev branch)"
         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
 
+        echo "[+] Fixing 4.19 compat"
+        KSU_PATH=$(readlink -f drivers/kernelsu)
+
+        # Hapus MODULE_IMPORT_NS (tidak ada di 4.19)
+        find "$KSU_PATH" -name "*.c" | xargs sed -i '/MODULE_IMPORT_NS/d' 2>/dev/null || true
+
         echo "[+] Done."
     - name: Android kernel build
       uses: lemniskett/android-kernel-actions@master
