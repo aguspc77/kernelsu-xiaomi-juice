@@ -47,6 +47,10 @@ jobs:
         # strncpy_from_user_nofault -> strncpy_from_user (4.19)
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|strncpy_from_user_nofault|strncpy_from_user|g' 2>/dev/null || true
 
+        # copy_to/from_kernel_nofault -> copy_to/from_kernel (4.19)
+        find "$KSU_PATH" -name "*.c" | xargs sed -i 's|copy_to_kernel_nofault|copy_to_kernel|g' 2>/dev/null || true
+        find "$KSU_PATH" -name "*.c" | xargs sed -i 's|copy_from_kernel_nofault|copy_from_kernel|g' 2>/dev/null || true
+
         # access_ok 2-arg -> 3-arg
         find "$KSU_PATH" -name "*.c" | xargs sed -i 's|access_ok(\([^,]*\), \([^)]*\))|access_ok(\1, \2, VERIFY_READ)|g' 2>/dev/null || true
 
