@@ -35,11 +35,19 @@ jobs:
         echo "[+] Integrating SukiSU-Ultra (susfs-dev branch)"
         curl -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -s susfs-dev
 
-        echo "[+] Fixing 4.19 compat"
+             echo "[+] Fixing 4.19 compat"
         KSU_PATH=$(readlink -f drivers/kernelsu)
 
         # Hapus MODULE_IMPORT_NS (tidak ada di 4.19)
         find "$KSU_PATH" -name "*.c" | xargs sed -i '/MODULE_IMPORT_NS/d' 2>/dev/null || true
+
+        # linux/pgtable.h -> asm/pgtable.h (tidak ada di 4.19)
+        find "$KSU_PATH" -name "*.c" -o -name "*.h" | xargs sed -i 's|#include <linux/pgtable.h>|#include <asm/pgtable.h>|' 2>/dev/null || true
+
+        # access_ok 2-arg -> 3-arg
+        find "$KSU_PATH" -name "*.c" | xargs sed -i 's|access_ok(\([^,]*\), \([^)]*\))|access_ok(\1, \2, VERIFY_READ)|g' 2>/dev/null || true
+
+        echo "[+] Done."   
 
         echo "[+] Done."
     - name: Android kernel build
